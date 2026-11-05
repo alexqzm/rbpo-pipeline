@@ -213,7 +213,7 @@ def summary_md(out: Path, man: dict, ev: dict, dec: dict, states: Dict[str, dict
         w("- Поиск секретов: не выполнен.")
     else:
         w(f"- Поиск секретов (Gitleaks, вся история репозитория): найдено {sec['findings']}, политика «{sec['policy']}».")
-    w(f"- Опись комплекта: `index.json` (SHA-256 каждого файла); полный отчёт о полноте — `report.md`.")
+    w("- Опись комплекта: `index.json` (SHA-256 каждого файла); полный отчёт о полноте — `report.md`.")
     w("")
     return "\n".join(L)
 

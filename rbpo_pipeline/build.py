@@ -18,7 +18,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from .states import put_state, write_json
 

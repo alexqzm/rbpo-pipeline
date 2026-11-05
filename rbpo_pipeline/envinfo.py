@@ -44,7 +44,7 @@ def collect(out: Path) -> dict:
                    "actions": lk["actions"]},
         "probed": probes,
     }
-    path = write_json(Path(out) / "env" / "environment.json", info)
+    write_json(Path(out) / "env" / "environment.json", info)
     mismatched = sorted(n for n, p in probes.items() if p.get("matches") is False)
     absent = sorted(n for n, p in probes.items() if not p.get("found"))
     if mismatched:
