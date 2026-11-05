@@ -1,0 +1,45 @@
+{
+  "title": "rbpo-pipeline: технические артефакты ГОСТ Р 56939-2024 из конвейера GitHub Actions",
+  "upload_type": "software",
+  "version": "0.1.0",
+  "language": "rus",
+  "license": "Apache-2.0",
+  "creators": [
+    {
+      "name": "Kuzmin, Alexander",
+      "orcid": "0000-0002-0393-412X"
+    }
+  ],
+  "description": "<p>Повторно используемый конвейер GitHub Actions, который на каждом запуске формирует шестнадцать технических артефактов национального стандарта ГОСТ Р 56939-2024 «Разработка безопасного программного обеспечения»: отчёт статического анализа с разметкой срабатываний, перечень зависимостей (CycloneDX) и анализ известных уязвимостей непосредственно перед сборкой, антивирусную проверку заимствованного кода, отчёт и журнал тестирования, журнал аудита сборки, подтверждение хранения и побитовой повторяемости сборки, аттестации происхождения и их проверку, анализ неустранённых ошибок.</p><p>У каждого артефакта три состояния, как в методе SCII: подтверждает, опровергает, не предъявлен. Вместе с организационными документами проекта они образуют манифест rbpo-evidence; конвейер проверяет полноту свидетельств по всем 25 процессам стандарта и принимает решение по выпуску, учитывая в нём и свидетельства сборочной среды и целостности кода. Это проверка полноты свидетельств, а не оценка соответствия стандарту.</p>",
+  "keywords": [
+    "secure software development",
+    "SSDLC",
+    "GOST R 56939-2024",
+    "DevSecOps",
+    "software supply chain",
+    "SBOM",
+    "build provenance",
+    "GitHub Actions",
+    "evidence graph"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/alexqzm/rbpo-pipeline",
+      "relation": "isSupplementTo",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/alexqzm/rbpo-evidence",
+      "relation": "requires",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.5281/zenodo.23833592",
+      "relation": "references",
+      "resource_type": "software",
+      "scheme": "doi"
+    }
+  ]
+}

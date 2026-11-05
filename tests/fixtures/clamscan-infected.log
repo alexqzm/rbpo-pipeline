@@ -1,0 +1,12 @@
+ClamAV 1.5.4/27812/Wed Nov  4 09:25:02 2026
+/scan/project/vendor/payload.bin: Win.Test.EICAR_HDB-1 FOUND
+
+----------- SCAN SUMMARY -----------
+Known viruses: 3627488
+Engine version: 1.5.4
+Scanned directories: 3
+Scanned files: 10
+Infected files: 1
+Data scanned: 0.01 MB
+Data read: 0.01 MB (ratio 1.00:1)
+Time: 9.120 sec (0 m 9 s)

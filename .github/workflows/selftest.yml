@@ -1,0 +1,27 @@
+# Самопроверка: конвейер rbpo.yml из этого же коммита на демонстрационном проекте examples/demo-app.
+# Еженедельный запуск повторяет анализ зависимостей по свежей базе уязвимостей.
+name: Самопроверка
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions: {}
+
+jobs:
+  demo-app:
+    uses: ./.github/workflows/rbpo.yml
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    with:
+      working-directory: examples/demo-app
+      pipeline-spec: "."
+      install-command: python -m pip install -r requirements.txt -e ".[test]"
+      test-command: python -m pytest --junitxml="$RBPO_JUNIT"
+      semgrep-config: p/python

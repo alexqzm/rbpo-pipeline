@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rbpo-demo-app"
+version = "0.1.0"
+description = "Демонстрационный проект для rbpo-pipeline: манифест файлов обновления ПО"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+dependencies = ["pyyaml>=6.0"]
+
+[project.optional-dependencies]
+test = ["pytest==9.1.1"]
+
+[project.scripts]
+demo-manifest = "demo_app.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/demo_app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

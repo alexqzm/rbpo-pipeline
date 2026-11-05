@@ -1,0 +1,18 @@
+# Решения по срабатываниям статического анализа и по уязвимостям зависимостей.
+# Каждое решение — с обоснованием; поле until (ГГГГ-ММ-ДД) ограничивает срок действия решения.
+#
+# sast:
+#   - rule: "python.lang.security.audit.subprocess-shell-true.*"
+#     path: "src/demo_app/cli.py"
+#     verdict: false_positive        # false_positive | accepted | confirmed
+#     reason: "команда собирается из констант, ввод пользователя в неё не попадает"
+#
+# vulnerabilities:
+#   - id: CVE-0000-00000
+#     package: "pyyaml"
+#     verdict: not_affected          # not_affected | accepted | confirmed
+#     reason: "уязвимая функция в проекте не вызывается"
+#     until: 2027-06-30
+
+sast: []
+vulnerabilities: []

@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "Если вы используете этот конвейер, сошлитесь на него так."
+title: "rbpo-pipeline: технические артефакты ГОСТ Р 56939-2024 из конвейера GitHub Actions"
+type: software
+version: 0.1.0
+license: Apache-2.0
+repository-code: "https://github.com/alexqzm/rbpo-pipeline"
+authors:
+  - family-names: Kuzmin
+    given-names: Alexander
+    orcid: "https://orcid.org/0000-0002-0393-412X"
+keywords:
+  - secure software development
+  - SSDLC
+  - GOST R 56939-2024
+  - DevSecOps
+  - software supply chain
+  - SBOM
+  - build provenance
+  - evidence graph
+references:
+  - type: software
+    title: "rbpo-evidence: ГОСТ Р 56939-2024 как граф доказательств"
+    repository-code: "https://github.com/alexqzm/rbpo-evidence"
+    authors:
+      - family-names: Kuzmin
+        given-names: Alexander
+        orcid: "https://orcid.org/0000-0002-0393-412X"
+  - type: software
+    title: "scii-gate: гейт допуска обновлений ПО киберфизических систем по графу доказательств"
+    doi: 10.5281/zenodo.23833592
+    repository-code: "https://github.com/alexqzm/scii-gate"
+    authors:
+      - family-names: Kuzmin
+        given-names: Alexander
+        orcid: "https://orcid.org/0000-0002-0393-412X"

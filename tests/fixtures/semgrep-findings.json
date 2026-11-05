@@ -1,0 +1,11 @@
+{
+ "version": "1.182.1",
+ "results": [],
+ "errors": [],
+ "paths": {
+  "scanned": [
+   "src/bad.py",
+   "src/other.py"
+  ]
+ }
+}

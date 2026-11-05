@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rbpo-pipeline"
+dynamic = ["version"]
+description = "РБПО-конвейер для GitHub Actions: технические артефакты ГОСТ Р 56939-2024 и проверка полноты свидетельств"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{name = "Alexander Kuzmin"}]
+keywords = ["secure software development", "SSDLC", "РБПО", "ГОСТ Р 56939", "DevSecOps", "software supply chain",
+            "SBOM", "SLSA", "GitHub Actions"]
+dependencies = [
+    "pyyaml>=5.4",
+    # Модель стандарта и проверка полноты; закреплено по коммиту.
+    "rbpo-evidence @ git+https://github.com/alexqzm/rbpo-evidence@2eb807d6e3c01c5b06a5b400b3f819e5f0f2bc9a",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+rbpo-pipeline = "rbpo_pipeline.cli:main"
+
+[project.urls]
+Repository = "https://github.com/alexqzm/rbpo-pipeline"
+
+[tool.hatch.version]
+path = "rbpo_pipeline/__init__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["rbpo_pipeline"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.github", "/examples"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

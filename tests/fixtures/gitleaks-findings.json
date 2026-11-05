@@ -1,0 +1,12 @@
+[
+ {
+  "RuleID": "github-pat",
+  "Description": "synthetic",
+  "StartLine": 1,
+  "Match": "REDACTED",
+  "Secret": "REDACTED",
+  "File": "conf.py",
+  "Commit": "bbfd1fbf903b8516f79858d6ccddcd13b1627e72",
+  "Fingerprint": "bbfd1fbf903b8516f79858d6ccddcd13b1627e72:conf.py:github-pat:1"
+ }
+]

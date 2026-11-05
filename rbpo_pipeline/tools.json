@@ -1,0 +1,55 @@
+{
+  "comment": "Закреплённые версии инструментов конвейера. Архивы проверяются по SHA-256 перед распаковкой. Новые версии берутся не раньше чем через 14 дней после выпуска.",
+  "binaries": {
+    "syft": {
+      "version": "1.55.0",
+      "url": "https://github.com/anchore/syft/releases/download/v1.55.0/syft_1.55.0_linux_amd64.tar.gz",
+      "sha256": "bb65249542db5fedeeb4d3f9b018b75e7264dbfbbb10486f044581a92f90490d",
+      "member": "syft",
+      "probe": ["syft", "version"],
+      "purpose": "перечень зависимостей (SBOM CycloneDX)"
+    },
+    "grype": {
+      "version": "0.121.0",
+      "url": "https://github.com/anchore/grype/releases/download/v0.121.0/grype_0.121.0_linux_amd64.tar.gz",
+      "sha256": "64e07133d3486115de647a66581461dccf5c732748a0a3119077395565f15519",
+      "member": "grype",
+      "probe": ["grype", "version"],
+      "purpose": "известные уязвимости в заимствованных компонентах"
+    },
+    "gitleaks": {
+      "version": "8.30.1",
+      "url": "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz",
+      "sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb",
+      "member": "gitleaks",
+      "probe": ["gitleaks", "version"],
+      "purpose": "поиск секретов в истории репозитория"
+    }
+  },
+  "python": {
+    "semgrep": {
+      "version": "1.182.1",
+      "spec": "semgrep==1.182.1",
+      "probe": ["semgrep", "--version"],
+      "purpose": "статический анализ исходного кода (SARIF)"
+    },
+    "build": {
+      "version": "1.6.1",
+      "spec": "build==1.6.1",
+      "purpose": "сборка пакетов Python по умолчанию"
+    }
+  },
+  "images": {
+    "clamav": {
+      "image": "clamav/clamav:1.5.4",
+      "purpose": "антивирусная проверка заимствованного кода; база сигнатур обновляется при запуске, версия базы записывается в свидетельство"
+    }
+  },
+  "actions": {
+    "actions/checkout": {"version": "v7.0.1", "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1"},
+    "actions/setup-python": {"version": "v7.1.0", "sha": "6d4fd22b20465ccc0f7354476588e8df7c9ca0e0"},
+    "actions/upload-artifact": {"version": "v7.0.2", "sha": "cf430e030ddbb5b0abf93d22962f4752f3646cd9"},
+    "actions/download-artifact": {"version": "v8.0.2", "sha": "9000827ccba6bdab643e8b6fd33ac0654aef8333"},
+    "actions/attest-build-provenance": {"version": "v4.2.2", "sha": "4d101475d8b20a2381f78447822ac1eab6504dd8"}
+  }
+}
