@@ -1,0 +1,85 @@
+{
+ "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/schemas/sarif-schema-2.1.0.json",
+ "version": "2.1.0",
+ "runs": [
+  {
+   "tool": {
+    "driver": {
+     "name": "Semgrep OSS",
+     "semanticVersion": "1.182.1",
+     "rules": [
+      {
+       "id": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true",
+       "defaultConfiguration": {
+        "level": "error"
+       },
+       "shortDescription": {
+        "text": "synthetic"
+       }
+      }
+     ]
+    }
+   },
+   "invocations": [
+    {
+     "executionSuccessful": true,
+     "toolExecutionNotifications": []
+    }
+   ],
+   "results": [
+    {
+     "fingerprints": {
+      "matchBasedId/v1": "requires login"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "src/nodeinfo.py",
+         "uriBaseId": "%SRCROOT%"
+        },
+        "region": {
+         "startLine": 8,
+         "endLine": 8,
+         "startColumn": 12,
+         "endColumn": 84
+        }
+       }
+      }
+     ],
+     "message": {
+      "text": "synthetic finding"
+     },
+     "properties": {},
+     "ruleId": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true"
+    },
+    {
+     "fingerprints": {
+      "matchBasedId/v1": "requires login"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "src/verify.py",
+         "uriBaseId": "%SRCROOT%"
+        },
+        "region": {
+         "startLine": 8,
+         "endLine": 8,
+         "startColumn": 12,
+         "endColumn": 58
+        }
+       }
+      }
+     ],
+     "message": {
+      "text": "synthetic finding"
+     },
+     "properties": {},
+     "ruleId": "python.lang.security.audit.subprocess-shell-true.subprocess-shell-true"
+    }
+   ]
+  }
+ ]
+}

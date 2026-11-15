@@ -1,0 +1,25 @@
+{
+ "bomFormat": "CycloneDX",
+ "specVersion": "1.7",
+ "components": [
+  {
+   "type": "library",
+   "name": "pyyaml",
+   "version": "5.3",
+   "purl": "pkg:pypi/pyyaml@5.3",
+   "bom-ref": "pkg:pypi/pyyaml@5.3?package-id=fb05837ff0d809cd"
+  },
+  {
+   "type": "library",
+   "name": "requests",
+   "version": "2.19.0",
+   "purl": "pkg:pypi/requests@2.19.0",
+   "bom-ref": "pkg:pypi/requests@2.19.0?package-id=93a0daacc39c1a57"
+  },
+  {
+   "type": "file",
+   "name": "/path/requirements.txt",
+   "bom-ref": "file-1"
+  }
+ ]
+}

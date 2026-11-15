@@ -1,0 +1,8 @@
+# Настройки rbpo-pipeline для стенда испытаний агента разметки.
+project: "cps-update-fetcher — стенд для испытаний агента разметки"
+
+policy:
+  sast_fail_on: error          # срабатывания уровня error требуют решения в файле разметки
+  sca_fail_on: high            # уязвимости уровня high и critical требуют решения
+
+triage: .rbpo/triage.yaml

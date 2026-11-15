@@ -1,0 +1,13 @@
+{
+ "version": "1.182.1",
+ "results": [],
+ "errors": [],
+ "paths": {
+  "scanned": [
+   "src/config.py",
+   "src/fetch.py",
+   "src/nodeinfo.py",
+   "src/verify.py"
+  ]
+ }
+}
