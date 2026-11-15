@@ -54,7 +54,7 @@ def evidence(out, project):
 def good() -> dict:
     return {
         "schema": proposals.SCHEMA,
-        "meta": {"agent": "оболочка 1.0", "model": "модель 1.0"},
+        "meta": {"agent": "обвязка 1.0", "model": "модель 1.0"},
         "proposals": [
             {"kind": "vulnerability", "id": "GHSA-8q59-q68h-6hv4", "package": "pyyaml", "version": "5.3",
              "verdict": "not_affected",
@@ -464,8 +464,11 @@ def test_cli_queue_check_and_guard(evidence, project, repo, tmp_path, monkeypatc
 
 
 # ---------------------------------------------------------------- набор для агента и документация
-def test_example_proposals_file_passes_the_check(repo, tmp_path):
-    """Образец из скилла остаётся верным: вымышленная очередь и файлы проекта под его ссылки."""
+EXAMPLE = KIT / "skills" / "rbpo-triage" / "assets" / "proposals.example.yaml"
+
+
+def _example(repo, tmp_path) -> Path:
+    """Вымышленная очередь и файлы проекта под ссылки образца из скилла; возвращает комплект свидетельств."""
     def item(**kw):
         return dict({"verdict": "untriaged", "reason": "", "expired_decisions": [], "blocking": True}, **kw)
 
@@ -480,10 +483,102 @@ def test_example_proposals_file_passes_the_check(repo, tmp_path):
     repo.commit({"src/tool/parse.py": "\n" * 8 + "    return examplelib.parse_strict(text)\n",
                  "src/tool/fetch.py": "\n" * 4 + "    return netclient.get(url, auth=(user, token))\n",
                  "src/tool/run.py": "\n" * 3 + 'LIST_CMD = "ls -la /var/lib/tool"\n'}, "init")
-    res = proposals.check([KIT / "skills" / "rbpo-triage" / "assets" / "proposals.example.yaml"], ev, repo.path, TODAY)
+    return ev
+
+
+def test_example_proposals_file_passes_the_check(repo, tmp_path):
+    """Образец из скилла остаётся верным."""
+    res = proposals.check([EXAMPLE], _example(repo, tmp_path), repo.path, TODAY)
     assert res["ok"], proposals.render_text(res)
     s = res["summary"]
     assert (s["proposals"], s["blocking_cleared"], s["blocking_confirmed"], s["blocking_without_proposal"]) == (3, 2, 1, 0)
+
+
+def _fenced(text: str, lang: str) -> list:
+    return re.findall(rf"(?ms)^```{lang}\n(.*?)^```", text)
+
+
+def test_kit_readme_example_shows_real_output(repo, tmp_path):
+    """Разбор одного элемента в описании набора: вывод команд и записи YAML — настоящие."""
+    ev = _example(repo, tmp_path)
+    base = repo.git("rev-parse", "HEAD")
+    good_res = proposals.check([EXAMPLE], ev, repo.path, TODAY)
+    src = EXAMPLE.read_text(encoding="utf-8")
+    spoiled = src
+    for old, new in (('quote: "return examplelib.parse_strict(text)"', 'quote: "return examplelib.parse(text, strict=True)"'),
+                     ("package: netclient\n", 'package: "*"\n'),
+                     ("verdict: false_positive          # false_positive | confirmed", "verdict: accepted")):
+        assert old in spoiled
+        spoiled = spoiled.replace(old, new)
+    bad_res = proposals.check([put(repo.path, spoiled, "2026-11-16-2.yaml")], ev, repo.path, TODAY)
+    assert codes(bad_res) == ["ПП03", "ПП04", "ПП07"]
+    (repo.path / ".rbpo" / "proposals" / "2026-11-16-2.yaml").unlink()
+    repo.commit({".rbpo/proposals/2026-11-16-1.yaml": src, ".rbpo/proposals/2026-11-16-1.md": "отчёт\n",
+                 ".rbpo/triage.yaml": "vulnerabilities: []\n", "AGENT_ACK.md": "ok\n"}, "ветка агента")
+    real = [proposals.render_queue(proposals.queue(ev)), proposals.render_text(good_res), proposals.render_text(bad_res),
+            proposals.render_guard(proposals.guard_range(repo.path, base)), repo.git("grep", "-n", "examplelib", "--", "src")]
+    real_lines = {line.strip() for text in real for line in text.splitlines()}
+
+    readme = (KIT / "README.md").read_text(encoding="utf-8")
+    shown = [line.strip() for block in _fenced(readme, "text") for line in block.splitlines()
+             if line.strip() and not line.startswith("$ ")]
+    assert len(shown) > 10 and [line for line in shown if line not in real_lines] == []
+
+    yaml_lines = {line.rstrip() for text in (src, proposals.fragment(good_res)) for line in text.splitlines()}
+    shown = [line.rstrip() for block in _fenced(readme, "yaml") for line in block.splitlines() if line.strip()]
+    assert len(shown) > 10 and [line for line in shown if line not in yaml_lines] == []
+
+
+def test_kit_readme_summary_matches_the_kit():
+    """Строка «Коротко» в описании набора: числа берутся из самого набора."""
+    def section(text: str, title: str) -> str:
+        return text.split(f"## {title}\n")[1].split("\n## ")[0]
+
+    rules = (KIT / "AGENTS.template.md").read_text(encoding="utf-8")
+    bans = re.findall(r"(?m)^\d+\. ", section(rules, "Что агенту запрещено"))
+    stops = re.findall(r"(?m)^- ", section(rules, "Когда остановиться и спросить человека"))
+    steps = re.findall(r"(?m)^### \d+\. ", (KIT / "skills" / "rbpo-triage" / "SKILL.md").read_text(encoding="utf-8"))
+    classes = re.findall(r"(?m)^\| О\d+ \|", (KIT / "ERRORS.md").read_text(encoding="utf-8"))
+    expected = yaml.safe_load((KIT / "stand" / "expected.yaml").read_text(encoding="utf-8"))
+    want = (f"**Коротко:** 3 команды · {len(proposals.RULES)} правил проверки предложений · {len(bans)} запретов и "
+            f"{len(stops)} условий остановки для агента · скилл из {len(steps)} шагов · {len(classes)} классов ошибок "
+            f"в журнале · стенд с {len(expected['items'])} блокирующими элементами и {len(expected['traps'])} ловушками.")
+    assert want in " ".join((KIT / "README.md").read_text(encoding="utf-8").split())
+
+
+def _slug(heading: str) -> str:
+    """Якорь заголовка, как его строит GitHub: строчные буквы, без знаков, пробелы заменены дефисами."""
+    return re.sub(r"[^\w\- ]", "", heading.strip().lower()).replace(" ", "-")
+
+
+def test_doc_links_and_anchors_resolve():
+    """Относительные ссылки в документации ведут на существующие файлы и разделы."""
+    docs = [ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md")),
+            *[p for p in sorted(KIT.rglob("*.md")) if "project" not in p.parts]]
+    cache: dict = {}
+
+    def prose(path: Path) -> str:
+        return re.sub(r"(?ms)^```.*?^```", "", path.read_text(encoding="utf-8"))
+
+    def anchors(path: Path) -> set:
+        if path not in cache:
+            heads = re.findall(r"(?m)^#{1,6} +(.+?) *$", prose(path))
+            cache[path] = {_slug(re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", h)) for h in heads}
+        return cache[path]
+
+    bad, seen = [], 0
+    for doc in docs:
+        for target in re.findall(r"\]\(([^)\s]+)\)", prose(doc)):
+            if re.match(r"[a-z][a-z0-9+.-]*:", target):
+                continue
+            seen += 1
+            rel, _, frag = target.partition("#")
+            path = (doc.parent / rel).resolve() if rel else doc
+            if not path.exists():
+                bad.append(f"{doc.relative_to(ROOT)}: нет файла {target}")
+            elif frag and path.suffix == ".md" and frag not in anchors(path):
+                bad.append(f"{doc.relative_to(ROOT)}: нет раздела {target}")
+    assert seen > 30 and not bad, "\n".join(bad)
 
 
 def test_kit_readme_counts_match_the_tests():

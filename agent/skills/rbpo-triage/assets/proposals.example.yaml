@@ -3,7 +3,7 @@
 schema: rbpo-pipeline/triage-proposals/v1
 
 meta:
-  agent: "<оболочка агента и её версия>"
+  agent: "<обвязка агента и её версия>"   # программа, в которой работает модель: Codex CLI, OpenCode и подобные
   model: "<модель и её версия>"
   skill: "rbpo-triage 0.1"
 

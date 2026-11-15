@@ -230,7 +230,7 @@ def _read(path: Path) -> Tuple[Optional[dict], str, List[dict]]:
         bad.append(_v(None, "ПП01", f"schema: ожидается {SCHEMA}"))
     meta = data.get("meta")
     if not isinstance(meta, dict):
-        bad.append(_v(None, "ПП01", "meta: укажите agent (оболочка агента и версия) и model (модель и версия)"))
+        bad.append(_v(None, "ПП01", "meta: укажите agent (обвязка агента и версия) и model (модель и версия)"))
     else:
         if set(meta) - _META_KEYS:
             bad.append(_v(None, "ПП01", f"meta: неизвестные ключи: {', '.join(sorted(clean(k) for k in set(meta) - _META_KEYS))}"))
