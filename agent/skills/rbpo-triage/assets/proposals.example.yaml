@@ -1,0 +1,51 @@
+# Образец файла предложений агента по разметке. Идентификаторы, пакеты и пути вымышлены.
+# Проверка: rbpo-pipeline proposals-check --out <комплект свидетельств> <этот файл>
+schema: rbpo-pipeline/triage-proposals/v1
+
+meta:
+  agent: "<оболочка агента и её версия>"
+  model: "<модель и её версия>"
+  skill: "rbpo-triage 0.1"
+
+proposals:
+  # Уязвимость недостижима: уязвимая функция в проекте не вызывается.
+  # Нужны дословная цитата из кода и срок пересмотра.
+  - kind: vulnerability
+    id: GHSA-aaaa-bbbb-cccc          # как в очереди; подходит и связанный идентификатор CVE
+    package: examplelib              # точное имя, без шаблонов
+    version: "1.4.2"                 # в кавычках, как в очереди
+    verdict: not_affected            # not_affected | confirmed
+    reason: >-
+      Уязвима функция examplelib.unsafe_parse. Проект вызывает только examplelib.parse_strict,
+      это единственное обращение к пакету в коде.
+    until: 2027-02-01                # срок пересмотра, не дальше 180 дней
+    refs:
+      - path: src/tool/parse.py
+        line: 9
+        quote: "return examplelib.parse_strict(text)"
+        note: "git grep -n examplelib -- src: других вызовов нет"
+
+  # Уязвимость подтверждена. Ссылки и срок необязательны; ссылка показывает, где пакет используется.
+  - kind: vulnerability
+    id: GHSA-dddd-eeee-ffff
+    package: netclient
+    version: "2.0.0"
+    verdict: confirmed
+    reason: "Проект передаёт учётные данные через netclient.get; исправлено в 2.0.1, нужно обновление."
+    refs:
+      - path: src/tool/fetch.py
+        line: 5
+        quote: "return netclient.get(url, auth=(user, token))"
+
+  # Срабатывание ложное: опасное значение — константа. Цитата показывает, откуда оно берётся.
+  - kind: sast
+    rule: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true
+    path: src/tool/run.py
+    line: 12
+    verdict: false_positive          # false_positive | confirmed
+    reason: "Команда — константа модуля LIST_CMD; значения извне в строку команды не попадают."
+    until: 2027-02-01
+    refs:
+      - path: src/tool/run.py
+        line: 4
+        quote: 'LIST_CMD = "ls -la /var/lib/tool"'
