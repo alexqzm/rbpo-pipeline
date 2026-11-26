@@ -17,19 +17,26 @@
   assemble        анализ неустранённых ошибок (5.20.3.2), манифест, отчёт rbpo-evidence, опись, решение
   decision        код возврата по решению: 0 — выпуск допустим, 1 — нет
 
+Работа с ИИ-агентом (docs/agent.md): агент предлагает разметку, решение принимает человек.
+
+  triage-queue    очередь разметки: что в комплекте свидетельств ждёт решения
+  proposals-check проверка предложений агента по разметке            0 — нарушений нет, 1 — есть
+  agent-guard     ветка агента меняет только каталог предложений     0 — нарушений нет, 1 — есть
+
 Коды возврата: 0 — успешно, 2 — ошибка входных данных; build-run возвращает код команды сборки.
 """
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
 import json
 import os
 import shutil
 import sys
 from pathlib import Path
 
-from . import __version__, analysis, assemble, build, config, envinfo, org, source, tools, triage
-from .states import put_state
+from . import __version__, analysis, assemble, build, config, envinfo, org, proposals, source, tools, triage
+from .states import put_state, write_json
 
 
 def _out(args) -> Path:
@@ -201,6 +208,32 @@ def cmd_decision(args) -> int:
     return 1
 
 
+def cmd_triage_queue(args) -> int:
+    q = proposals.queue(Path(args.out))
+    if args.json:
+        write_json(Path(args.json), q)
+    print(proposals.render_queue(q))
+    return 0
+
+
+def cmd_proposals_check(args) -> int:
+    today = _dt.date.fromisoformat(args.date) if args.date else None
+    res = proposals.check([Path(p) for p in args.proposals], Path(args.out), Path(args.project), today,
+                          args.max_days)
+    if args.json:
+        write_json(Path(args.json), res)
+    if args.md:
+        Path(args.md).write_text(proposals.render_markdown(res), encoding="utf-8")
+    print(proposals.render_text(res))
+    return 0 if res["ok"] else 1
+
+
+def cmd_agent_guard(args) -> int:
+    res = proposals.guard_range(Path(args.project), args.base, args.head, args.allow)
+    print(proposals.render_guard(res))
+    return 1 if res["violations"] else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="rbpo-pipeline", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -271,6 +304,23 @@ def build_parser() -> argparse.ArgumentParser:
     p = add("assemble", cmd_assemble, "комплект свидетельств и решение", cfg=True)
     p.add_argument("--needs-env", default="", help="переменная окружения с toJSON(needs)")
     add("decision", cmd_decision, "код возврата по решению")
+
+    p = add("triage-queue", cmd_triage_queue, "очередь разметки: что в комплекте ждёт решения")
+    p.add_argument("--json", help="записать очередь в файл JSON (для агента)")
+    p = add("proposals-check", cmd_proposals_check, "проверка предложений агента по разметке", project=True)
+    p.add_argument("proposals", nargs="+", help="файлы предложений (.rbpo/proposals/*.yaml)")
+    p.add_argument("--max-days", type=int, default=proposals.MAX_DAYS,
+                   help="наибольший срок пересмотра снимающего решения, дней")
+    p.add_argument("--date", help="дата проверки ГГГГ-ММ-ДД (по умолчанию сегодня, UTC)")
+    p.add_argument("--json", help="записать результат в файл JSON")
+    p.add_argument("--md", help="записать отчёт для человека в файл Markdown")
+    p = sub.add_parser("agent-guard", help="ветка агента меняет только каталог предложений")
+    p.add_argument("--project", default=".", help="каталог проекта")
+    p.add_argument("--base", required=True, help="ветка или коммит, от которого ответвилась ветка агента")
+    p.add_argument("--head", default="HEAD", help="проверяемый коммит")
+    p.add_argument("--allow", action="append",
+                   help="разрешённый шаблон пути относительно каталога проекта (можно несколько)")
+    p.set_defaults(func=cmd_agent_guard)
     return ap
 
 

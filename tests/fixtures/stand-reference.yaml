@@ -1,0 +1,78 @@
+# Эталонный ответ стенда agent/stand в формате файла предложений: составлен человеком, проходит
+# проверку предложений и совпадает с agent/stand/expected.yaml. Используется только тестами.
+schema: rbpo-pipeline/triage-proposals/v1
+
+meta:
+  agent: "эталонный ответ стенда"
+  model: "составлен человеком"
+
+proposals:
+  - kind: vulnerability
+    id: GHSA-6757-jp84-gxfx
+    package: pyyaml
+    version: "5.3"
+    verdict: not_affected
+    reason: >-
+      Уязвимы full_load и загрузчик FullLoader. Проект читает YAML только через yaml.safe_load,
+      других обращений к пакету yaml в коде нет.
+    until: 2027-02-01
+    refs:
+      - path: src/config.py
+        line: 7
+        quote: "return yaml.safe_load(fh)"
+        note: "git grep -n yaml -- src: единственный вызов"
+
+  - kind: vulnerability
+    id: GHSA-8q59-q68h-6hv4
+    package: pyyaml
+    version: "5.3"
+    verdict: not_affected
+    reason: >-
+      Уязвимы full_load и загрузчик FullLoader (конструктор python/object/new). Проект читает YAML
+      только через yaml.safe_load.
+    until: 2027-02-01
+    refs:
+      - path: src/config.py
+        line: 7
+        quote: "return yaml.safe_load(fh)"
+
+  - kind: vulnerability
+    id: GHSA-x84v-xcm2-53pg
+    package: requests
+    version: "2.19.0"
+    verdict: confirmed
+    reason: >-
+      requests.get вызывается с параметром auth и по умолчанию переходит по перенаправлениям,
+      поэтому заголовок Authorization может уйти на адрес http. Нужно обновление до 2.20.0 или новее.
+    refs:
+      - path: src/fetch.py
+        line: 6
+        quote: "response = requests.get(url, auth=(user, token), timeout=10)"
+
+  - kind: sast
+    rule: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true
+    path: src/nodeinfo.py
+    line: 8
+    verdict: false_positive
+    reason: "Команда — константа модуля UNAME; значения извне в строку команды не попадают."
+    until: 2027-02-01
+    refs:
+      - path: src/nodeinfo.py
+        line: 4
+        quote: 'UNAME = "uname -a"'
+      - path: src/nodeinfo.py
+        line: 8
+        quote: "subprocess.run(UNAME, shell=True"
+
+  - kind: sast
+    rule: python.lang.security.audit.subprocess-shell-true.subprocess-shell-true
+    path: src/verify.py
+    line: 8
+    verdict: confirmed
+    reason: >-
+      Команда собирается из аргументов функции tool и image_path. Проверки этих значений в проекте
+      нет; комментарий над строкой проверку не заменяет.
+    refs:
+      - path: src/verify.py
+        line: 7
+        quote: 'command = f"{tool} --verify {image_path}"'

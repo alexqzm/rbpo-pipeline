@@ -1,0 +1,41 @@
+# Пример для репозитория проекта: контроль запросов на слияние из веток агента (agent/**).
+#
+# Скопируйте файл в .github/workflows/ проекта, подставьте коммит rbpo-pipeline вместо <коммит> и
+# сделайте задачу обязательной проверкой основной ветки. Учётной записи агента разрешите отправку
+# только в ветки agent/** этого же репозитория.
+#
+# Событие pull_request_target выбрано намеренно: рабочий процесс берётся из основной ветки, поэтому
+# ветка агента не может изменить или отключить собственную проверку. Код ветки агента при этом не
+# извлекается и не исполняется: сравниваются только имена и режимы изменённых файлов.
+name: Контроль ветки агента
+
+on:
+  pull_request_target:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  guard:
+    name: Изменения только в каталоге предложений
+    if: startsWith(github.head_ref, 'agent/') && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      # Основная ветка и все ветки репозитория; ветка агента в рабочий каталог не извлекается.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+      - name: Установка rbpo-pipeline
+        run: python -m pip install --quiet "git+https://github.com/alexqzm/rbpo-pipeline@<коммит>"
+      - name: Ветка агента меняет только каталог предложений
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: rbpo-pipeline agent-guard --base "$BASE" --head "$HEAD"

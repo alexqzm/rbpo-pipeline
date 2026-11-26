@@ -194,6 +194,28 @@ Grype и Gitleaks проверяются по SHA-256 ([`rbpo_pipeline/tools.jso
 Шаги можно запускать и вне GitHub Actions: `rbpo-pipeline <шаг> --out <каталог>`
 (`rbpo-pipeline --help`).
 
+## Работа с ИИ-агентом
+
+Разбор срабатываний и уязвимостей можно поручить ИИ-агенту, но файл разметки он не правит: запись
+в `.rbpo/triage.yaml` снимает блокировку выпуска. Агент пишет предложения в `.rbpo/proposals/`,
+конвейер этот каталог не читает, решение в файл разметки переносит человек.
+
+```sh
+rbpo-pipeline triage-queue --out .rbpo-evidence                           # что ждёт решения
+rbpo-pipeline proposals-check --out .rbpo-evidence .rbpo/proposals/*.yaml  # проверка предложений агента
+rbpo-pipeline agent-guard --base origin/main                              # ветка агента меняет только предложения
+```
+
+`proposals-check` отклоняет предложения с шаблонами, принятием риска, решениями без срока
+пересмотра и ссылками на код, которые дословно не совпадают с файлами проекта. Она подтверждает
+форму предложения и существование процитированных строк, а не правильность вывода.
+
+Описание по порядку со схемами — в [`agent/README.md`](agent/README.md): из чего состоит агент и
+что такое обвязка агента, как идёт работа, разбор одного элемента от очереди до решения, требования
+к обвязке, испытания на стенде. Там же правила для агента, скилл, журнал ошибок, программа
+испытаний и стенд с известными ответами. Справочник по командам, правилам проверки и угрозам —
+в [`docs/agent.md`](docs/agent.md).
+
 ## Ограничения
 
 - Исполнители Linux x64; сборка по умолчанию — Python (`python -m build`), для других языков
@@ -236,4 +258,6 @@ code, test report and log, build audit log, storage and bit-for-bit reproducibil
 provenance attestations and their verification, and an analysis of unresolved defects — then
 builds an `rbpo-evidence` manifest, evaluates evidence completeness across all 25 processes of the
 standard (three-valued: supports, refutes, not presented) and makes a release decision. This is an
-evidence-completeness check, not a conformity assessment.
+evidence-completeness check, not a conformity assessment. An optional kit lets an AI agent propose
+triage decisions without being able to make them: proposals live outside the triage file, are
+checked for exact code quotations and scope, and a human transfers the accepted ones.
